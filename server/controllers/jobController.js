@@ -1,16 +1,14 @@
 import Job from '../models/jobModel.js';
 import Application from '../models/applicationModel.js';
+import { performMatchAnalysis } from '../services/aiMatchingService.js';
 
-// @desc    Get all active jobs, with filtering
-// @route   GET /api/jobs
-// @access  Public
 export const getAllJobs = async (req, res, next) => {
   try {
     const { keyword, location, jobType } = req.query;
     const filter = { isActive: true };
 
     if (keyword) {
-      filter.title = { $regex: keyword, $options: 'i' }; // Case-insensitive regex search
+      filter.title = { $regex: keyword, $options: 'i' };
     }
     if (location) {
       filter.location = { $regex: location, $options: 'i' };
@@ -23,6 +21,22 @@ export const getAllJobs = async (req, res, next) => {
       .populate('employer', 'name profile.companyName')
       .sort({ createdAt: -1 });
 
+    if (req.user && req.user.role === 'seeker') {
+      const jobsWithScores = await Promise.all(
+        jobs.map(async (job) => {
+          // Note: This live analysis can be slow on large job lists.
+          // In production, caching or background jobs would optimize this.
+          const analysis = await performMatchAnalysis(req.user, job);
+          return { ...job.toObject(), matchScore: analysis.score };
+        })
+      );
+      return res.status(200).json({
+        success: true,
+        count: jobsWithScores.length,
+        data: jobsWithScores,
+      });
+    }
+
     res.status(200).json({
       success: true,
       count: jobs.length,
@@ -33,9 +47,6 @@ export const getAllJobs = async (req, res, next) => {
   }
 };
 
-// @desc    Create a new job
-// @route   POST /api/jobs
-// @access  Private (Employer)
 export const createJob = async (req, res, next) => {
   try {
     req.body.employer = req.user.id;
@@ -46,29 +57,19 @@ export const createJob = async (req, res, next) => {
   }
 };
 
-// @desc    Get jobs for the logged-in employer
-// @route   GET /api/jobs/myjobs
-// @access  Private (Employer)
 export const getMyJobs = async (req, res, next) => {
   try {
     const jobs = await Job.find({ employer: req.user.id }).sort({ createdAt: -1 });
-
-    const jobsWithCounts = await Promise.all(
-        jobs.map(async (job) => {
-            const applicantCount = await Application.countDocuments({ job: job._id });
-            return { ...job.toObject(), applicantCount };
-        })
-    );
-
+    const jobsWithCounts = await Promise.all(jobs.map(async (job) => {
+      const applicantCount = await Application.countDocuments({ job: job._id });
+      return { ...job.toObject(), applicantCount };
+    }));
     res.status(200).json({ success: true, count: jobsWithCounts.length, data: jobsWithCounts });
   } catch (error) {
     next(error);
   }
 };
 
-// @desc    Get a single job by ID
-// @route   GET /api/jobs/:id
-// @access  Public
 export const getJobById = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id).populate('employer', 'name profile.companyName');
@@ -82,9 +83,6 @@ export const getJobById = async (req, res, next) => {
   }
 };
 
-// @desc    Update a job
-// @route   PUT /api/jobs/:id
-// @access  Private (Employer)
 export const updateJob = async (req, res, next) => {
   try {
     let job = await Job.findById(req.params.id);
@@ -94,7 +92,7 @@ export const updateJob = async (req, res, next) => {
     }
     if (job.employer.toString() !== req.user.id) {
       res.status(403);
-      throw new Error('User not authorized to update this job');
+      throw new Error('User not authorized');
     }
     job = await Job.findByIdAndUpdate(req.params.id, req.body, { new: true, runValidators: true });
     res.status(200).json({ success: true, data: job });
@@ -103,9 +101,6 @@ export const updateJob = async (req, res, next) => {
   }
 };
 
-// @desc    Delete a job
-// @route   DELETE /api/jobs/:id
-// @access  Private (Employer)
 export const deleteJob = async (req, res, next) => {
   try {
     const job = await Job.findById(req.params.id);
@@ -115,10 +110,10 @@ export const deleteJob = async (req, res, next) => {
     }
     if (job.employer.toString() !== req.user.id) {
       res.status(403);
-      throw new Error('User not authorized to delete this job');
+      throw new Error('User not authorized');
     }
     await Job.findByIdAndDelete(req.params.id);
-    res.status(200).json({ success: true, message: 'Job removed successfully' });
+    res.status(200).json({ success: true, message: 'Job removed' });
   } catch (error) {
     next(error);
   }
