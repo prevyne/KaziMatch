@@ -15,28 +15,18 @@ const SeekerDashboardPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // In a real app, token would come from AuthContext
       const token = 'YOUR_AUTH_TOKEN_HERE'; 
       try {
-        // Fetch applications and top jobs in parallel
-        const [appsResponse, jobsResponse] = await Promise.all([
-          getMyApplications(token),
-          getAllJobs(token)
-        ]);
+        const [appsResponse, jobsResponse] = await Promise.all([ getMyApplications(token), getAllJobs(token) ]);
         setApplications(appsResponse.data);
-        // Let's just show the top 5 matched jobs on the dashboard
         setTopJobs(jobsResponse.data.slice(0, 5));
       } catch (err) {
         setError('Failed to load dashboard data.');
-        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
-    if (user) {
-      fetchData();
-    }
+    if (user) fetchData();
   }, [user]);
 
   if (loading) return <Spinner />;
@@ -44,7 +34,10 @@ const SeekerDashboardPage = () => {
 
   return (
     <div>
-      <h1 style={styles.title}>Welcome, {user?.name}!</h1>
+      <div style={styles.header}>
+        <h1 style={styles.title}>Welcome, {user?.name}!</h1>
+        <Link to="/profile/edit" style={styles.editProfileButton}>Edit Profile</Link>
+      </div>
       
       <div style={styles.dashboardGrid}>
         <section style={styles.section}>
@@ -60,28 +53,24 @@ const SeekerDashboardPage = () => {
                   <span style={styles.statusBadge}>{app.status}</span>
                 </div>
               ))
-            ) : (
-              <p>You have not applied to any jobs yet.</p>
-            )}
+            ) : (<p>You have not applied to any jobs yet.</p>)}
           </div>
         </section>
-
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>My Top Matched Jobs</h2>
           {topJobs.length > 0 ? (
             topJobs.map(job => <JobCard key={job._id} job={job} />)
-          ) : (
-            <p>We are still searching for your perfect match!</p>
-          )}
+          ) : (<p>We are still searching for your perfect match!</p>)}
         </section>
       </div>
     </div>
   );
 };
 
-// Styles
 const styles = {
-    title: { fontSize: '2rem', marginBottom: '20px' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
+    title: { fontSize: '2rem', margin: 0 },
+    editProfileButton: { padding: '10px 15px', textDecoration: 'none', backgroundColor: '#34495e', color: 'white', borderRadius: '5px' },
     error: { color: 'red' },
     dashboardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px' },
     section: { backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px' },

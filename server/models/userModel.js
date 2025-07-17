@@ -1,6 +1,20 @@
 import mongoose from 'mongoose';
 import bcrypt from 'bcryptjs';
 
+const experienceSchema = new mongoose.Schema({
+  title: String,
+  company: String,
+  years: Number,
+  description: String,
+});
+
+const educationSchema = new mongoose.Schema({
+  institution: String,
+  degree: String,
+  fieldOfStudy: String,
+  years: Number,
+});
+
 const userSchema = new mongoose.Schema(
   {
     name: {
@@ -31,8 +45,12 @@ const userSchema = new mongoose.Schema(
       headline: { type: String, default: '' },
       bio: { type: String, default: '' },
       location: { type: String, default: '' },
-      resume: { type: String, default: '' },
+      resume: { type: String, default: '' }, 
       companyName: { type: String, default: '' },
+      // New fields for detailed seeker profiles
+      skills: [String],
+      experience: [experienceSchema],
+      education: [educationSchema],
     },
     isAdmin: {
       type: Boolean,
@@ -45,6 +63,7 @@ const userSchema = new mongoose.Schema(
   }
 );
 
+// Mongoose middleware to hash password before saving
 userSchema.pre('save', async function (next) {
   if (!this.isModified('password')) {
     next();
@@ -53,6 +72,7 @@ userSchema.pre('save', async function (next) {
   this.password = await bcrypt.hash(this.password, salt);
 });
 
+// Mongoose method to compare entered password with hashed password
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };

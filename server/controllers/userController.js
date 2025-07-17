@@ -5,7 +5,6 @@ import User from '../models/userModel.js';
 // @access  Private
 export const getUserProfile = async (req, res, next) => {
   try {
-    // req.user is already available from the 'protect' middleware
     res.status(200).json(req.user);
   } catch (error) {
     next(error);
@@ -23,13 +22,13 @@ export const updateUserProfile = async (req, res, next) => {
       user.name = req.body.name || user.name;
       user.email = req.body.email || user.email;
 
-      // Update nested profile fields
-      if(req.body.profile) {
-          user.profile.headline = req.body.profile.headline || user.profile.headline;
-          user.profile.bio = req.body.profile.bio || user.profile.bio;
-          user.profile.location = req.body.profile.location || user.profile.location;
-          user.profile.resume = req.body.profile.resume || user.profile.resume;
-          user.profile.companyName = req.body.profile.companyName || user.profile.companyName;
+      if (req.body.profile) {
+        user.profile.headline = req.body.profile.headline;
+        user.profile.bio = req.body.profile.bio;
+        user.profile.location = req.body.profile.location;
+        user.profile.skills = req.body.profile.skills;
+        user.profile.experience = req.body.profile.experience;
+        user.profile.education = req.body.profile.education;
       }
       
       if (req.body.password) {
