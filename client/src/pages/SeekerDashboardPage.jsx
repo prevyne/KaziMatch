@@ -15,12 +15,9 @@ const SeekerDashboardPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      // The token is only needed for getMyApplications in this case,
-      // as getAllJobs will use the browser's cookie.
-      const token = 'YOUR_AUTH_TOKEN_HERE'; 
       try {
         const [appsResponse, jobsResponse] = await Promise.all([
-          getMyApplications(token),
+          getMyApplications(), // No token needed
           getAllJobs()
         ]);
         setApplications(appsResponse.data);
@@ -38,7 +35,7 @@ const SeekerDashboardPage = () => {
   }, [user]);
 
   if (loading) return <Spinner />;
-  if (error) return <p style={styles.error}>{error}</p>;
+  if (error) return <p style={{color: 'red'}}>{error}</p>;
 
   return (
     <div>

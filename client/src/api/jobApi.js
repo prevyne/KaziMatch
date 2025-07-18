@@ -1,27 +1,22 @@
 import api from './axiosConfig';
 
-// The browser automatically sends the auth cookie, so no token is needed here.
 export const getAllJobs = async (filters = {}) => {
   const params = new URLSearchParams(filters).toString();
-  const response = await api.get(`/api/jobs?${params}`);
+  const response = await api.get(`/jobs?${params}`);
   return response.data;
 };
 
 export const getJobById = async (jobId) => {
-  const response = await api.get(`/api/jobs/${jobId}`);
+  const response = await api.get(`/jobs/${jobId}`);
   return response.data;
 };
 
-// The token is still needed for routes that require it in the header,
-// but for cookie-based auth, it's often managed automatically.
-export const getMyJobs = async (token) => {
-  const config = { headers: { Authorization: `Bearer ${token}` } };
-  const response = await api.get('/api/jobs/myjobs', config);
+export const getMyJobs = async () => {
+  const response = await api.get('/jobs/myjobs');
   return response.data;
 };
 
-export const createJob = async (jobData, token) => {
-  const config = { headers: { Authorization: `Bearer ${token}` } };
-  const response = await api.post('/api/jobs', jobData, config);
+export const createJob = async (jobData) => {
+  const response = await api.post('/jobs', jobData);
   return response.data;
 };
