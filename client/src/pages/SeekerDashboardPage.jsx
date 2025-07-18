@@ -15,18 +15,26 @@ const SeekerDashboardPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      // The token is only needed for getMyApplications in this case,
+      // as getAllJobs will use the browser's cookie.
       const token = 'YOUR_AUTH_TOKEN_HERE'; 
       try {
-        const [appsResponse, jobsResponse] = await Promise.all([ getMyApplications(token), getAllJobs(token) ]);
+        const [appsResponse, jobsResponse] = await Promise.all([
+          getMyApplications(token),
+          getAllJobs()
+        ]);
         setApplications(appsResponse.data);
         setTopJobs(jobsResponse.data.slice(0, 5));
       } catch (err) {
         setError('Failed to load dashboard data.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-    if (user) fetchData();
+    if (user) {
+      fetchData();
+    }
   }, [user]);
 
   if (loading) return <Spinner />;
