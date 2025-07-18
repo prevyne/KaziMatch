@@ -1,6 +1,7 @@
 import express from 'express';
 import dotenv from 'dotenv';
 import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import connectDB from './config/db.js';
 import { notFound, errorHandler } from './middleware/errorMiddleware.js';
 
@@ -14,6 +15,14 @@ dotenv.config();
 connectDB();
 
 const app = express();
+
+// CORS Configuration
+const corsOptions = {
+  origin: process.env.CLIENT_URL, // The URL of your Vercel frontend
+  credentials: true, // Allows cookies to be sent
+};
+
+app.use(cors(corsOptions));
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
