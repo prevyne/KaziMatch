@@ -1,7 +1,6 @@
 import User from '../models/userModel.js';
 import jwt from 'jsonwebtoken';
 
-// Helper to generate a token and send it in a cookie
 const generateTokenAndSetCookie = (res, userId) => {
   const token = jwt.sign({ id: userId }, process.env.JWT_SECRET, {
     expiresIn: process.env.JWT_EXPIRES_IN,
@@ -9,15 +8,12 @@ const generateTokenAndSetCookie = (res, userId) => {
 
   res.cookie('jwt', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV !== 'development', // Use secure cookies in production
-    sameSite: 'strict', // Prevent CSRF attacks
+    secure: process.env.NODE_ENV !== 'development', // Will be true in production
+    sameSite: 'none',
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   });
 };
 
-// @desc    Register a new user
-// @route   POST /api/auth/register
-// @access  Public
 export const registerUser = async (req, res, next) => {
   try {
     const { name, email, password, role } = req.body;
@@ -52,9 +48,6 @@ export const registerUser = async (req, res, next) => {
   }
 };
 
-// @desc    Auth user & get token (Login)
-// @route   POST /api/auth/login
-// @access  Public
 export const loginUser = async (req, res, next) => {
   try {
     const { email, password } = req.body;
@@ -83,32 +76,10 @@ export const loginUser = async (req, res, next) => {
   }
 };
 
-// @desc    Logout user / clear cookie
-// @route   POST /api/auth/logout
-// @access  Private
 export const logoutUser = (req, res, next) => {
   res.cookie('jwt', '', {
     httpOnly: true,
     expires: new Date(0),
   });
   res.status(200).json({ success: true, message: 'Logged out successfully' });
-};
-
-
-// @desc    Get user profile
-// @route   GET /api/auth/me
-// @access  Private
-export const getMe = async (req, res, next) => {
-  try {
-    // req.user is set by the protect middleware
-    const user = await User.findById(req.user.id);
-    if (user) {
-        res.status(200).json(user);
-    } else {
-        res.status(404);
-        throw new Error('User not found');
-    }
-  } catch (error) {
-    next(error);
-  }
 };
