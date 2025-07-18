@@ -18,8 +18,8 @@ const app = express();
 
 // CORS Configuration
 const corsOptions = {
-  origin: process.env.CLIENT_URL, // The URL of your Vercel frontend
-  credentials: true, // Allows cookies to be sent
+  origin: process.env.CLIENT_URL,
+  credentials: true,
 };
 
 app.use(cors(corsOptions));
