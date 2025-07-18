@@ -15,12 +15,16 @@ const SeekerDashboardPage = () => {
 
   useEffect(() => {
     const fetchData = async () => {
+      if (!user) return;
+      
       try {
+        // Fetch applications and top jobs in parallel using cookie-based auth
         const [appsResponse, jobsResponse] = await Promise.all([
-          getMyApplications(), // No token needed
+          getMyApplications(),
           getAllJobs()
         ]);
         setApplications(appsResponse.data);
+        // Let's just show the top 5 matched jobs on the dashboard
         setTopJobs(jobsResponse.data.slice(0, 5));
       } catch (err) {
         setError('Failed to load dashboard data.');
@@ -29,13 +33,12 @@ const SeekerDashboardPage = () => {
         setLoading(false);
       }
     };
-    if (user) {
-      fetchData();
-    }
+    
+    fetchData();
   }, [user]);
 
   if (loading) return <Spinner />;
-  if (error) return <p style={{color: 'red'}}>{error}</p>;
+  if (error) return <p style={styles.error}>{error}</p>;
 
   return (
     <div>
@@ -47,7 +50,7 @@ const SeekerDashboardPage = () => {
       <div style={styles.dashboardGrid}>
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>My Applications</h2>
-          <div style={styles.tableContainer}>
+          <div style={styles.listContainer}>
             {applications.length > 0 ? (
               applications.map(app => (
                 <div key={app._id} style={styles.applicationRow}>
@@ -61,6 +64,7 @@ const SeekerDashboardPage = () => {
             ) : (<p>You have not applied to any jobs yet.</p>)}
           </div>
         </section>
+
         <section style={styles.section}>
           <h2 style={styles.sectionTitle}>My Top Matched Jobs</h2>
           {topJobs.length > 0 ? (
@@ -73,18 +77,18 @@ const SeekerDashboardPage = () => {
 };
 
 const styles = {
-    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' },
+    header: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px', flexWrap: 'wrap', gap: '10px' },
     title: { fontSize: '2rem', margin: 0 },
     editProfileButton: { padding: '10px 15px', textDecoration: 'none', backgroundColor: '#34495e', color: 'white', borderRadius: '5px' },
-    error: { color: 'red' },
+    error: { color: 'red', textAlign: 'center' },
     dashboardGrid: { display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '30px' },
     section: { backgroundColor: '#f8f9fa', padding: '20px', borderRadius: '8px' },
     sectionTitle: { marginTop: 0, borderBottom: '2px solid #eee', paddingBottom: '10px' },
-    tableContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
+    listContainer: { display: 'flex', flexDirection: 'column', gap: '15px' },
     applicationRow: { display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', backgroundColor: 'white', borderRadius: '5px' },
     jobLink: { textDecoration: 'none', color: '#0984e3', fontWeight: 'bold' },
     companyText: { margin: '5px 0 0 0', fontSize: '14px', color: '#555' },
-    statusBadge: { textTransform: 'capitalize', padding: '5px 10px', borderRadius: '12px', color: 'white', backgroundColor: '#34495e', fontSize: '12px' }
+    statusBadge: { textTransform: 'capitalize', padding: '5px 10px', borderRadius: '12px', color: 'white', backgroundColor: '#34495e', fontSize: '12px', flexShrink: 0, marginLeft: '10px' }
 };
 
 export default SeekerDashboardPage;
