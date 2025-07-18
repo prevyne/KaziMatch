@@ -71,3 +71,10 @@ Follow these instructions to set up and run the project on your local machine.
     ```
 2.  This command will start both the backend server (on `http://localhost:5000`) and the frontend Vite server.
 3.  Open your browser and navigate to the frontend URL to use the application.
+
+
+## DEPLOYMENT
+
+### Client: https://kazi-match.vercel.app
+
+### Server: https://kazimatch.onrender.com
