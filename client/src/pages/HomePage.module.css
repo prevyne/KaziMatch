@@ -1,0 +1,84 @@
+.hero {
+    text-align: center;
+    padding: 80px 20px;
+    background-color: #f8f9fa;
+    border-radius: 8px;
+}
+
+.heroTitle {
+    font-size: 3rem;
+    color: #2c3e50;
+    margin: 0 0 10px 0;
+}
+
+.heroSubtitle {
+    font-size: 1.2rem;
+    color: #34495e;
+    margin-bottom: 30px;
+    max-width: 600px;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+.ctaButton {
+    display: inline-block;
+    padding: 15px 30px;
+    font-size: 1rem;
+    color: white;
+    background-color: #0984e3;
+    text-decoration: none;
+    border-radius: 5px;
+    font-weight: bold;
+    transition: background-color 0.2s;
+}
+
+.ctaButton:hover {
+    background-color: #0b73c4;
+}
+
+.features {
+    padding: 60px 20px;
+    text-align: center;
+}
+
+.featuresTitle {
+    font-size: 2.5rem;
+    color: #2c3e50;
+    margin-bottom: 40px;
+}
+
+.featuresGrid {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+    flex-wrap: wrap; /* Allows wrapping even on medium screens if needed */
+}
+
+.featureCard {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 8px;
+    width: 300px;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    border: 1px solid #eee;
+}
+
+.featureCardTitle {
+    font-size: 1.5rem;
+    color: #34495e;
+    margin-bottom: 15px;
+}
+
+/* --- RESPONSIVE STYLES --- */
+@media (max-width: 768px) {
+    .featuresGrid {
+        flex-direction: column; /* Stack the cards vertically */
+        align-items: center;
+    }
+    .heroTitle {
+        font-size: 2.5rem;
+    }
+    .featuresTitle {
+        font-size: 2rem;
+    }
+}

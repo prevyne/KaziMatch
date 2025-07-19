@@ -1,77 +1,49 @@
-const API_URL = "https://api-inference.huggingface.co/models/google/gemma-7b-it";
+export const performMatchAnalysis = (seeker, job) => {
+  console.log(`Performing ALGORITHMIC analysis for seeker ${seeker._id} on job ${job._id}...`);
 
-const buildPrompt = (seeker, job) => {
-  const seekerProfileText = `
-    - Headline: ${seeker.profile.headline}
-    - Bio: ${seeker.profile.bio}
-    - Skills: ${seeker.profile.skills.join(', ')}
-  `;
-  const jobDescriptionText = `
-    - Job Title: ${job.title}
-    - Job Description: ${job.description}
-    - Requirements: ${job.requirements.join(', ')}
-  `;
+  // Ensure profile and job data exist to prevent errors
+  const seekerSkills = (seeker.profile?.skills || []).map(s => s.toLowerCase().trim());
+  const jobRequirements = (job.requirements || []).map(r => r.toLowerCase().trim());
 
-  return `
-    Analyze the following candidate profile against the provided job description. 
-    Your task is to respond ONLY with a valid JSON object. Do not include any text, explanation, or markdown formatting before or after the JSON.
-    The JSON object must have these exact keys: "score", "summary", "strengths", "weaknesses".
-    - "score": An integer from 0 to 100 representing the match quality.
-    - "summary": A 2-sentence analysis.
-    - "strengths": An array of 3 string bullet points.
-    - "weaknesses": An array of 2 string bullet points.
-
-    Here is the data:
-    **Candidate Profile:**
-    ${seekerProfileText}
-
-    **Job Description:**
-    ${jobDescriptionText}
-  `;
-};
-
-export const performMatchAnalysis = async (seeker, job) => {
-  console.log(`Starting Hugging Face AI analysis for seeker ${seeker._id} on job ${job._id}...`);
-
-  const prompt = buildPrompt(seeker, job);
-  
-  try {
-    const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            "Authorization": `Bearer ${process.env.HUGGINGFACE_API_KEY}`
-        },
-        body: JSON.stringify({ inputs: prompt }),
-    });
-
-    if (!response.ok) {
-        const errorBody = await response.text();
-        throw new Error(`API request failed with status ${response.status}: ${errorBody}`);
-    }
-
-    const responseData = await response.json();
-    let generatedText = responseData[0].generated_text;
-    
-    const jsonStartIndex = generatedText.indexOf('{');
-    if (jsonStartIndex === -1) {
-      throw new Error("AI did not return valid JSON.");
-    }
-    const jsonResponseText = generatedText.substring(jsonStartIndex);
-
-    const analysisResult = JSON.parse(jsonResponseText);
-
-    console.log('Hugging Face AI analysis complete.');
-    return analysisResult;
-
-  } catch (error) {
-    console.error("Error during Hugging Face AI analysis:", error.message);
-    
+  if (jobRequirements.length === 0) {
     return {
-      score: 0,
-      summary: 'An error occurred during AI analysis. Please check the server logs.',
-      strengths: [],
-      weaknesses: [],
+      score: 50, // Neutral score if job has no listed requirements
+      summary: "Cannot determine match quality as the job has no specific skill requirements listed.",
+      strengths: ["N/A"],
+      weaknesses: ["No requirements listed by employer."],
     };
   }
+
+  // --- Core Scoring Logic ---
+
+  // 1. Calculate Skill Match
+  const matchedSkills = jobRequirements.filter(req => seekerSkills.includes(req));
+  const skillScore = (matchedSkills.length / jobRequirements.length) * 100;
+
+  // 2. Determine Final Score (we can add more logic here later)
+  const finalScore = Math.round(skillScore);
+  
+  // --- Generate Analysis Text ---
+
+  // 3. Find Missing Skills
+  const missingSkills = jobRequirements.filter(req => !seekerSkills.includes(req));
+
+  // 4. Generate a Dynamic Summary
+  let summary = `The candidate is a ${finalScore}% match based on direct skill alignment. `;
+  if (finalScore > 80) {
+    summary += "They appear to be a very strong fit for the required skill set.";
+  } else if (finalScore > 60) {
+    summary += "They possess a good number of the required skills.";
+  } else {
+    summary += "There are several gaps in the required skill set.";
+  }
+
+  console.log('ALGORITHMIC analysis complete.');
+
+  return {
+    score: finalScore,
+    summary: summary,
+    strengths: matchedSkills.length > 0 ? matchedSkills.map(s => `Proficient in ${s}`) : ["No direct skill matches found."],
+    weaknesses: missingSkills.length > 0 ? missingSkills.map(s => `Lacks experience in ${s}`) : ["Covers all listed skill requirements."],
+  };
 };

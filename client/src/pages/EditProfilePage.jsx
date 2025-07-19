@@ -1,54 +1,35 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext.jsx';
-import { updateUserProfile } from '../api/userApi'; // <-- The fix is on this line
+import { updateUserProfile } from '../api/userApi';
 
 const EditProfilePage = () => {
     const { user, login } = useAuth();
-    const [formData, setFormData] = useState({
-        name: '',
-        email: '',
-        profile: {
-            headline: '',
-            bio: '',
-            location: '',
-            skills: [],
-            experience: [],
-            education: [],
-        },
-    });
+    const navigate = useNavigate();
+    const [formData, setFormData] = useState(null);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
-    const navigate = useNavigate();
 
     useEffect(() => {
         if (user) {
+            // Defensively set form data, providing empty defaults
             setFormData({
-                name: user.name,
-                email: user.email,
+                name: user.name || '',
+                email: user.email || '',
                 profile: {
-                    headline: user.profile.headline || '',
-                    bio: user.profile.bio || '',
-                    location: user.profile.location || '',
-                    skills: user.profile.skills || [],
-                    experience: user.profile.experience || [],
-                    education: user.profile.education || [],
+                    headline: user.profile?.headline || '',
+                    bio: user.profile?.bio || '',
+                    location: user.profile?.location || '',
+                    skills: user.profile?.skills || [],
+                    experience: user.profile?.experience || [],
+                    education: user.profile?.education || [],
                 }
             });
         }
     }, [user]);
 
-    const handleBasicChange = (e) => {
-        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
-    };
-
-    const handleProfileChange = (e) => {
-        setFormData(prev => ({
-            ...prev,
-            profile: { ...prev.profile, [e.target.name]: e.target.value }
-        }));
-    };
-
+    const handleBasicChange = (e) => setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
+    const handleProfileChange = (e) => setFormData(prev => ({ ...prev, profile: { ...prev.profile, [e.target.name]: e.target.value } }));
     const handleSkillsChange = (e) => {
         const skillsArray = e.target.value.split(',').map(skill => skill.trim());
         setFormData(prev => ({ ...prev, profile: { ...prev.profile, skills: skillsArray } }));
@@ -59,9 +40,8 @@ const EditProfilePage = () => {
         setLoading(true);
         setError('');
         try {
-            const token = 'YOUR_AUTH_TOKEN_HERE';
-            const updatedUser = await updateUserProfile(formData, token);
-            login(updatedUser);
+            const updatedUser = await updateUserProfile(formData);
+            login(updatedUser); // Update the user in the context
             alert('Profile updated successfully!');
             navigate('/dashboard/seeker');
         } catch (err) {
@@ -71,26 +51,23 @@ const EditProfilePage = () => {
         }
     };
 
-    if (!user) return <p>Loading...</p>;
+    // Show a loading message until the form data is populated from the user object
+    if (!formData) return <p>Loading Profile...</p>;
 
     return (
         <div style={styles.container}>
             <form onSubmit={handleSubmit} style={styles.form}>
                 <h2 style={styles.title}>Edit Your Profile</h2>
                 {error && <p style={styles.error}>{error}</p>}
-
                 <h3>Basic Information</h3>
                 <input name="name" value={formData.name} placeholder="Full Name" onChange={handleBasicChange} style={styles.input} />
                 <input name="email" value={formData.email} placeholder="Email" onChange={handleBasicChange} style={styles.input} />
-                
                 <h3>Professional Profile</h3>
                 <input name="headline" value={formData.profile.headline} placeholder="Headline (e.g., Senior Full-Stack Developer)" onChange={handleProfileChange} style={styles.input} />
                 <textarea name="bio" value={formData.profile.bio} placeholder="Short Bio" onChange={handleProfileChange} style={styles.textarea} />
                 <input name="location" value={formData.profile.location} placeholder="Your Location" onChange={handleProfileChange} style={styles.input} />
-
                 <h3>Skills</h3>
                 <input name="skills" value={formData.profile.skills.join(', ')} placeholder="Your skills (comma-separated)" onChange={handleSkillsChange} style={styles.input} />
-
                 <button type="submit" style={styles.button} disabled={loading}>
                     {loading ? 'Saving...' : 'Save Changes'}
                 </button>

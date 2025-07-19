@@ -33,12 +33,10 @@ export const AuthProvider = ({ children }) => {
     setUser(null);
   };
   
-  const value = { user, login, logout, isAuthenticated: !!user };
+  // We now export 'loading' in the context value
+  const value = { user, login, logout, loading, isAuthenticated: !!user };
 
-  if (loading) {
-    return <Spinner />;
-  }
-
+  // No longer need the spinner here, as PrivateRoute will handle it
   return (
     <AuthContext.Provider value={value}>
       {children}

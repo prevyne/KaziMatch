@@ -1,0 +1,66 @@
+.card {
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 20px;
+    position: relative;
+    background-color: white;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    transition: box-shadow 0.2s ease-in-out;
+}
+
+.card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+.scoreBadge {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: #0984e3;
+    color: white;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: bold;
+}
+
+.title {
+    margin: 0 0 5px 0;
+    color: #2c3e50;
+    margin-right: 100px; /* Make space for the badge */
+}
+
+.company {
+    margin: 0 0 15px 0;
+    color: #7f8c8d;
+    font-weight: normal;
+    font-size: 1rem;
+}
+
+.description {
+    color: #34495e;
+    line-height: 1.6;
+}
+
+.detailsButton {
+    display: inline-block;
+    margin-top: 15px;
+    padding: 10px 15px;
+    color: white;
+    background-color: #34495e;
+    text-decoration: none;
+    border-radius: 5px;
+}
+
+/* --- RESPONSIVE STYLES --- */
+@media (max-width: 600px) {
+    .title {
+        font-size: 1.2rem;
+    }
+
+    .scoreBadge {
+        font-size: 0.7rem;
+        padding: 4px 8px;
+    }
+}
