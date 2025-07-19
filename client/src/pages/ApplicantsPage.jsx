@@ -3,6 +3,7 @@ import { useParams } from 'react-router-dom';
 import { getApplicantsForJob, updateApplicationStatus, deleteApplication } from '../api/applicationApi.js';
 import ApplicantCard from '../components/dashboard/ApplicantCard.jsx';
 import Spinner from '../components/common/Spinner.jsx';
+import styles from './ApplicantsPage.module.css'; // <-- Import CSS Module
 
 const ApplicantsPage = () => {
     const { id: jobId } = useParams();
@@ -28,7 +29,6 @@ const ApplicantsPage = () => {
     const handleStatusChange = async (applicationId, newStatus) => {
         try {
             await updateApplicationStatus(applicationId, newStatus);
-            // Update the status in the local state for an instant UI update
             setApplications(prev => prev.map(app => 
                 app._id === applicationId ? { ...app, status: newStatus } : app
             ));
@@ -40,7 +40,6 @@ const ApplicantsPage = () => {
     const handleDeleteApplication = async (applicationId) => {
         try {
             await deleteApplication(applicationId);
-            // Remove the application from local state for an instant UI update
             setApplications(prev => prev.filter(app => app._id !== applicationId));
         } catch (err) {
             alert('Failed to delete application.');
@@ -48,11 +47,11 @@ const ApplicantsPage = () => {
     };
 
     if (loading) return <Spinner />;
-    if (error) return <p style={{ color: 'red' }}>{error}</p>;
+    if (error) return <p className={styles.error}>{error}</p>;
 
     return (
         <div>
-            <h1 style={{ marginBottom: '30px' }}>Applicants</h1>
+            <h1 className={styles.title}>Applicants</h1>
             {applications.length > 0 ? (
                 applications.map(app => 
                     <ApplicantCard 

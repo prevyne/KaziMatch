@@ -1,0 +1,142 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    gap: 15px;
+}
+
+.title {
+    margin: 0;
+}
+
+.postJobButton {
+    padding: 10px 15px;
+    text-decoration: none;
+    background-color: #0984e3;
+    color: white;
+    border-radius: 5px;
+    transition: background-color 0.2s;
+}
+
+.postJobButton:hover {
+    background-color: #0b73c4;
+}
+
+.jobListContainer {
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    overflow: hidden; /* Ensures child borders don't poke out */
+}
+
+.jobListHeader {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    padding: 15px 20px;
+    border-bottom: 2px solid #f0f0f0;
+    font-weight: bold;
+    background-color: #f8f9fa;
+}
+
+.headerCell {
+    color: #2c3e50;
+}
+
+.jobRow {
+    display: grid;
+    grid-template-columns: 3fr 1fr 1fr 1fr;
+    padding: 15px 20px;
+    border-bottom: 1px solid #f0f0f0;
+    align-items: center;
+}
+
+/* Remove border from the very last row */
+.jobRow:last-child {
+    border-bottom: none;
+}
+
+.cell {
+    color: #34495e;
+}
+
+.actionLink {
+    color: #0984e3;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.activeBadge, .inactiveBadge {
+    display: inline-block;
+    color: white;
+    padding: 4px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.activeBadge {
+    background: #2ecc71;
+}
+
+.inactiveBadge {
+    background: #95a5a6;
+}
+
+.noJobsText {
+    padding: 40px;
+    text-align: center;
+    color: #555;
+}
+
+.error {
+    color: #e74c3c;
+}
+
+
+/* --- RESPONSIVE STYLES --- */
+@media (max-width: 768px) {
+    /* Hide the table header on mobile */
+    .jobListHeader {
+        display: none;
+    }
+
+    /* Turn each row into a card */
+    .jobRow {
+        display: block;
+        border-bottom: none;
+        border: 1px solid #ddd;
+        border-radius: 8px;
+        margin: 15px;
+        padding: 15px;
+    }
+    
+    .jobListContainer {
+        background: none;
+        box-shadow: none;
+    }
+    
+    /* Style each cell to stack vertically */
+    .cell {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+    .cell:last-child {
+        border-bottom: none;
+    }
+
+    /* Add labels to the data using CSS pseudo-elements */
+    .cell::before {
+        font-weight: bold;
+        color: #34495e;
+    }
+    
+    /* We target the cells by their position inside the row */
+    .cell:nth-of-type(1)::before { content: "Title: "; }
+    .cell:nth-of-type(2)::before { content: "Status: "; }
+    .cell:nth-of-type(3)::before { content: "Applicants: "; }
+    .cell:nth-of-type(4)::before { content: "Actions: "; }
+}
