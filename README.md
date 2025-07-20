@@ -1,31 +1,44 @@
 # KaziMatch
 
-[![Made with MERN](https://img.shields.io/badge/Made%20with-MERN-blue.svg)](https://www.mongodb.com/mern-stack)
+[![Made with MERN](https://img.shields.io/badge/Made%20with-MERN-blue.svg)](https://www.mongodb.com/mern-stack) [![UI Responsive](https://img.shields.io/badge/UI-Responsive-green.svg)]()
 
-KaziMatch is a modern, user-centric job platform built on the MERN stack. It leverages AI to create a powerful bridge between job seekers and employers, highlighting the best-fit opportunities for candidates and ranking the most qualified applicants for companies.
+KaziMatch is a modern, user-centric job platform built on the MERN stack. It leverages a sophisticated matching engine to create a powerful bridge between job seekers and employers, highlighting the best-fit opportunities for candidates and ranking the most qualified applicants for companies.
 
 ---
 
 ## Core Features
 
 -   **Dual User Roles:** Separate registration and dashboard experiences for Job Seekers and Employers.
--   **AI-Powered Match Scoring:**
-    -   **For Seekers:** See a personalized AI-generated match score for every job listing.
-    -   **For Employers:** View a ranked list of applicants for any job, sorted from highest to lowest match score.
--   **Comprehensive Job Management:** Employers can create, view, update, and delete job postings.
--   **Advanced Job Search:** Seekers can browse and filter all available jobs by keywords, location, and job type.
--   **Detailed Seeker Profiles:** Job seekers can build out their profiles with skills, work experience, and education.
--   **Streamlined Application Process:** Simple "Apply" functionality that links seekers to jobs and triggers the AI analysis.
--   **Secure Authentication:** User authentication is handled with JWT and secure `httpOnly` cookies.
+-   **Intelligent Match Scoring:**
+    -   **For Seekers:** See a personalized, data-driven match score for every job listing.
+    -   **For Employers:** View a ranked list of applicants for any job, sorted from highest to lowest score.
+-   **Comprehensive Application Management:** Employers can update an applicant's status (Viewed, Interviewing, etc.) or delete applications directly from their dashboard.
+-   **Full Job CRUD:** Employers can create, view, update, and delete job postings.
+-   **Advanced Job Search:** All users can browse and filter available jobs by keywords, location, and job type.
+-   **Detailed Seeker Profiles:** Job seekers can build out rich profiles with skills, work history, and education to improve matching accuracy.
+-   **Fully Responsive UI:** A seamless user experience across all devices—mobile, tablet, and desktop—thanks to a refactor using CSS Modules.
+-   **Secure Authentication:** User authentication is handled with JWT and secure, cross-site `httpOnly` cookies.
 
 ---
 
 ## Tech Stack
 
--   **Frontend:** React, Vite, React Router, Axios
+-   **Frontend:** React, Vite, React Router, Axios, CSS Modules
 -   **Backend:** Node.js, Express.js
 -   **Database:** MongoDB (with Mongoose)
--   **AI Integration:** Hugging Face Inference API
+-   **Matching Engine:** A swappable service layer supporting:
+    -   A live **Hugging Face Inference API** model for deep analysis.
+    -   A deterministic, offline **JavaScript-based algorithm** for local development and reliability.
+
+---
+
+## Matching Engine Logic
+
+The `aiMatchingService.js` on the backend is designed to be modular. The project includes implementations for three different modes:
+
+1.  **Live AI Mode (Hugging Face):** Connects to a live Large Language Model (e.g., `google/gemma-7b-it` or `mistralai/Mistral-7B-Instruct-v0.2`) for nuanced, context-aware analysis. This is ideal for production.
+2.  **Algorithmic Mode:** A fast, offline, and deterministic algorithm that runs locally. It calculates a score based on direct skill matching between a seeker's profile and a job's requirements. This is excellent for credibility and offline functionality.
+3.  **Mock Mode:** A simple placeholder that returns randomized data. This is useful for frontend UI testing when a real analysis is not needed.
 
 ---
 
@@ -37,13 +50,12 @@ Follow these instructions to set up and run the project on your local machine.
 
 -   Node.js (v18 or later recommended)
 -   MongoDB (A local instance or a free MongoDB Atlas cluster URI)
--   A Hugging Face account and an Access Token (API Key)
 
 ### Installation & Setup
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/prevyne/KaziMatch.git
+    git clone <your-repository-url>
     cd kazimatch
     ```
 
@@ -58,7 +70,7 @@ Follow these instructions to set up and run the project on your local machine.
 
 3.  **Install All Dependencies:**
     -   Navigate back to the **root `kazimatch/` directory**.
-    -   Run the master installation script:
+    -   Run the master installation script, which installs dependencies for both the server and the client:
     ```bash
     npm install concurrently && npm run install-all
     ```
@@ -69,7 +81,8 @@ Follow these instructions to set up and run the project on your local machine.
     ```bash
     npm run dev
     ```
-2.  This command will start both the backend server (on `http://localhost:5000`) and the frontend Vite server.
+2.  This command will start both the backend server (on `http://localhost:5000`) and the frontend Vite server (on the port specified in `client/vite.config.js`).
+
 3.  Open your browser and navigate to the frontend URL to use the application.
 
 
